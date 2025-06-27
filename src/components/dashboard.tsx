@@ -23,8 +23,22 @@ export default function Dashboard({ user }: { user: UserProfile }) {
     return () => unsubscribe();
   }, [user]);
 
-  const activeEvents = events.filter(event => !event.isCompleted);
-  const completedEvents = events.filter(event => event.isCompleted);
+  const activeEvents = events
+    .filter(event => !event.isCompleted)
+    .sort((a, b) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return a.dueDate.toMillis() - b.dueDate.toMillis();
+    });
+
+  const completedEvents = events
+    .filter(event => event.isCompleted)
+    .sort((a, b) => {
+        if (a.dueDate && b.dueDate) {
+          return b.dueDate.toMillis() - a.dueDate.toMillis();
+        }
+        return 0;
+    });
 
   return (
     <div className="space-y-8">
