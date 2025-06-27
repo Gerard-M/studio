@@ -27,16 +27,18 @@ export const addEvent = (userId: string, title: string) => {
 };
 
 export const getEvents = (userId: string, callback: (events: any[]) => void) => {
-  const q = query(
-    collection(db, "events"),
-    where("userId", "==", userId),
-    orderBy("createdAt", "desc")
-  );
+  const q = query(collection(db, "events"), where("userId", "==", userId));
   return onSnapshot(q, (snapshot) => {
     const events = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
+    events.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return b.createdAt.toMillis() - a.createdAt.toMillis();
+      }
+      return 0;
+    });
     callback(events);
   });
 };
