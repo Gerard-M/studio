@@ -35,7 +35,6 @@ export default function LoginPage() {
       // This specific error code means the user intentionally closed the popup.
       // We don't need to show an error message for that.
       if (error.code === 'auth/popup-closed-by-user') {
-        console.log('Login cancelled by user.');
         return;
       }
       

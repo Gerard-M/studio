@@ -19,7 +19,7 @@ import { addDocument } from '@/lib/firebase/firestore';
 
 const formSchema = z.object({
   title: z.string().min(2, 'Title must be at least 2 characters.'),
-  googleDocsLink: z.string().url('Must be a valid URL.').startsWith('https://docs.google.com/', 'URL must be a valid Google Docs link.'),
+  googleDocsLink: z.string().url('Must be a valid URL.'),
   dueDate: z.date({ required_error: 'A due date is required.' }),
 });
 
