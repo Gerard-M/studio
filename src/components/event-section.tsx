@@ -12,7 +12,7 @@ import { Skeleton } from "./ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { format, differenceInDays } from "date-fns";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export default function EventSection({ event }: { event: Event }) {
@@ -52,16 +52,11 @@ export default function EventSection({ event }: { event: Event }) {
     }
   };
 
-  const daysUntilDue = event.dueDate ? differenceInDays(event.dueDate.toDate(), new Date()) : Infinity;
-  const isUrgent = !event.isCompleted && event.dueDate && daysUntilDue >= 0 && daysUntilDue <= 5;
-
-
   return (
     <Collapsible className="w-full">
         <Card className={cn(
         "transition-all", 
-        event.isCompleted && 'border-dashed',
-        isUrgent && 'bg-destructive/10 border-destructive/20'
+        event.isCompleted && 'border-dashed'
         )}>
         <div className="flex items-start justify-between p-6">
             <div className="flex-1 pr-4">
