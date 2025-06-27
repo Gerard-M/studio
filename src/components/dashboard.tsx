@@ -17,7 +17,7 @@ export default function Dashboard({ user }: { user: UserProfile }) {
     if (!user) return;
     setLoading(true);
     const unsubscribe = getEvents(user.uid, (eventsData) => {
-      setEvents(eventsData as Event[]);
+      setEvents(eventsData);
       setLoading(false);
     });
     return () => unsubscribe();

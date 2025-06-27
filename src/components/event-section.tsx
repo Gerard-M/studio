@@ -56,7 +56,7 @@ export default function EventSection({ event }: { event: Event }) {
   useEffect(() => {
     setLoading(true);
     const unsubscribe = getDocuments(event.id, (docs) => {
-      setDocuments(docs as DocuTrackDocument[]);
+      setDocuments(docs);
       setLoading(false);
     });
     return () => unsubscribe();

@@ -14,7 +14,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "./config";
-import type { DocumentData, DocumentStatus, EventData, ReminderPreference } from "../types";
+import type { DocuTrackDocument, DocumentData, DocumentStatus, Event, EventData, ReminderPreference } from "../types";
 
 // Events
 
@@ -32,7 +32,7 @@ export const addEvent = (userId: string, title: string, dueDate: Date, reminderP
   });
 };
 
-export const getEvents = (userId:string, callback: (events: any[]) => void) => {
+export const getEvents = (userId:string, callback: (events: Event[]) => void) => {
   const q = query(
     collection(db, "events"),
     where("userId", "==", userId)
@@ -42,7 +42,7 @@ export const getEvents = (userId:string, callback: (events: any[]) => void) => {
       id: doc.id,
       ...doc.data(),
     }));
-    callback(events);
+    callback(events as Event[]);
   }, (error) => {
     console.error("Error in getEvents snapshot listener:", error);
   });
@@ -73,7 +73,7 @@ export const deleteEvent = async (eventId: string) => {
 
 // Documents
 
-export const getDocuments = (eventId: string, callback: (docs: any[]) => void) => {
+export const getDocuments = (eventId: string, callback: (docs: DocuTrackDocument[]) => void) => {
   const q = query(
     collection(db, "events", eventId, "documents"),
     orderBy("createdAt", "asc")
@@ -83,7 +83,7 @@ export const getDocuments = (eventId: string, callback: (docs: any[]) => void) =
       id: doc.id,
       ...doc.data(),
     }));
-    callback(documents);
+    callback(documents as DocuTrackDocument[]);
   }, (error) => {
     console.error("Error in getDocuments snapshot listener:", error);
   });
