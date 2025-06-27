@@ -75,12 +75,18 @@ export const deleteEvent = async (eventId: string) => {
 // Documents
 
 export const getDocuments = (eventId: string, callback: (docs: any[]) => void) => {
-  const q = query(collection(db, "events", eventId, "documents"), orderBy("createdAt", "asc"));
+  const q = query(collection(db, "events", eventId, "documents"));
   return onSnapshot(q, (snapshot) => {
     const documents = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
+    documents.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+          return a.createdAt.toMillis() - b.createdAt.toMillis();
+      }
+      return 0;
+    });
     callback(documents);
   });
 };
