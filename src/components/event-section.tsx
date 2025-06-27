@@ -1,19 +1,51 @@
 'use client';
 import { useState, useEffect } from "react";
 import { getDocuments, deleteEvent, updateEvent } from "@/lib/firebase/firestore";
-import type { Event, DocuTrackDocument } from "@/lib/types";
+import type { Event, DocuTrackDocument, ReminderPreference } from "@/lib/types";
 import DocumentCard from "./document-card";
 import { AddDocumentDialog } from "./add-document-dialog";
 import { Button } from "./ui/button";
-import { Calendar, ChevronsUpDown, Trash2 } from "lucide-react";
+import { BellRing, Calendar, ChevronsUpDown, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "./ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { format } from "date-fns";
+import { format, differenceInDays, formatDistanceToNowStrict } from "date-fns";
 import { cn } from "@/lib/utils";
+
+const getReminderText = (pref: ReminderPreference, dueDate: Date): string | null => {
+  if (pref === 'none') {
+    return null;
+  }
+
+  const now = new Date();
+  now.setHours(0, 0, 0, 0); // Ignore time for comparison
+
+  const daysUntilDue = differenceInDays(dueDate, now);
+
+  if (daysUntilDue < 0) {
+    return null; // Don't show reminder text for past events
+  }
+
+  const distance = formatDistanceToNowStrict(dueDate, { addSuffix: true });
+
+  switch (pref) {
+    case 'daily':
+      return `Daily reminders active (due ${distance})`;
+    case 'every_2_days':
+      return `Reminders active every 2 days (due ${distance})`;
+    case 'three_days_before':
+      if (daysUntilDue <= 3) return `Reminders active (due ${distance})`;
+      return `Reminder set for 3 days before due date`;
+    case 'one_week_before':
+      if (daysUntilDue <= 7) return `Reminder set for 1 week before due date`;
+    default:
+      return null;
+  }
+};
+
 
 export default function EventSection({ event }: { event: Event }) {
   const [documents, setDocuments] = useState<DocuTrackDocument[]>([]);
@@ -32,6 +64,10 @@ export default function EventSection({ event }: { event: Event }) {
   const completedDocuments = documents.filter(doc => doc.isCompleted).length;
   const totalDocuments = documents.length;
   const progress = totalDocuments > 0 ? (completedDocuments / totalDocuments) * 100 : 0;
+  
+  const reminderText = !event.isCompleted && event.dueDate && event.reminderPreference
+    ? getReminderText(event.reminderPreference, event.dueDate.toDate())
+    : null;
 
   useEffect(() => {
     if (loading) return;
@@ -61,20 +97,28 @@ export default function EventSection({ event }: { event: Event }) {
         <div className="flex items-start justify-between p-6">
             <div className="flex-1 pr-4">
                 <h2 className={cn("text-2xl font-bold font-headline", event.isCompleted && "text-muted-foreground")}>{event.title}</h2>
-                {event.dueDate && (
-                  <p className="flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
-                    <Calendar className="h-3 w-3" />
-                    Due: {format(event.dueDate.toDate(), "MMM d, yyyy")}
-                  </p>
-                )}
-                <div className="text-sm text-muted-foreground mt-2">
+                <div className="space-y-1 mt-1">
+                  {event.dueDate && (
+                    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Calendar className="h-3 w-3" />
+                      Due: {format(event.dueDate.toDate(), "MMM d, yyyy")}
+                    </p>
+                  )}
+                  {reminderText && (
+                    <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <BellRing className="h-3 w-3" />
+                        {reminderText}
+                    </p>
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground mt-3">
                     {loading ? (
                         <Skeleton className="h-4 w-48" />
                     ) : (
                         <p>{completedDocuments} of {totalDocuments} documents completed.</p>
                     )}
                 </div>
-                <Progress value={loading ? 0 : Math.round(progress)} className="w-full mt-4" />
+                <Progress value={loading ? 0 : Math.round(progress)} className="w-full mt-2" />
             </div>
             <div className="flex items-center gap-2 pl-4">
                 <AddDocumentDialog eventId={event.id} />
