@@ -35,8 +35,7 @@ export const addEvent = (userId: string, title: string, dueDate: Date, reminderP
 export const getEvents = (userId:string, callback: (events: any[]) => void) => {
   const q = query(
     collection(db, "events"),
-    where("userId", "==", userId),
-    orderBy("createdAt", "desc")
+    where("userId", "==", userId)
   );
   const unsubscribe = onSnapshot(q, (snapshot) => {
     const events = snapshot.docs.map((doc) => ({
