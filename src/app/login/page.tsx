@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { signInWithGoogle } from '@/lib/firebase/auth';
 import { FileText } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!loading && user) {
@@ -29,8 +31,21 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       router.push('/');
-    } catch (error) {
+    } catch (error: any) {
+      // This specific error code means the user intentionally closed the popup.
+      // We don't need to show an error message for that.
+      if (error.code === 'auth/popup-closed-by-user') {
+        console.log('Login cancelled by user.');
+        return;
+      }
+      
+      // For any other error, log it and show a toast notification.
       console.error('Login failed:', error);
+      toast({
+        title: 'Login Failed',
+        description: 'An unexpected error occurred during login. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 
