@@ -5,13 +5,14 @@ import type { Event, DocuTrackDocument } from "@/lib/types";
 import DocumentCard from "./document-card";
 import { AddDocumentDialog } from "./add-document-dialog";
 import { Button } from "./ui/button";
-import { ChevronsUpDown, Trash2 } from "lucide-react";
+import { Calendar, ChevronsUpDown, Trash2 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "./ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { format } from "date-fns";
 
 export default function EventSection({ event }: { event: Event }) {
   const [documents, setDocuments] = useState<DocuTrackDocument[]>([]);
@@ -46,6 +47,12 @@ export default function EventSection({ event }: { event: Event }) {
         <div className="flex items-start justify-between p-6">
             <div className="flex-1 pr-4">
                 <h2 className="text-2xl font-bold font-headline">{event.title}</h2>
+                {event.dueDate && (
+                  <p className="flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    Due: {format(event.dueDate.toDate(), "MMM d, yyyy")}
+                  </p>
+                )}
                 <div className="text-sm text-muted-foreground mt-2">
                     {loading ? (
                         <Skeleton className="h-4 w-48" />

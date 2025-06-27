@@ -11,19 +11,23 @@ import {
   updateDoc,
   where,
   writeBatch,
+  Timestamp,
 } from "firebase/firestore";
 import { db } from "./config";
 import type { DocumentData, DocumentStatus, EventData } from "../types";
 
 // Events
 
-export const addEvent = (userId: string, title: string) => {
-  const eventData: EventData = {
+export const addEvent = (userId: string, title: string, dueDate: Date) => {
+  const eventData: Omit<EventData, "createdAt"> = {
     title,
     userId,
-    createdAt: serverTimestamp() as any,
+    dueDate: Timestamp.fromDate(dueDate),
   };
-  return addDoc(collection(db, "events"), eventData);
+  return addDoc(collection(db, "events"), {
+    ...eventData,
+    createdAt: serverTimestamp(),
+  });
 };
 
 export const getEvents = (userId: string, callback: (events: any[]) => void) => {

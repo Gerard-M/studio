@@ -10,6 +10,7 @@ export type UserProfile = {
 export type EventData = {
   title: string;
   createdAt: Timestamp;
+  dueDate: Timestamp;
   userId: string;
 };
 
