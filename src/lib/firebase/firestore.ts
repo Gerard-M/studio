@@ -33,19 +33,19 @@ export const addEvent = (userId: string, title: string, dueDate: Date, reminderP
 };
 
 export const getEvents = (userId:string, callback: (events: any[]) => void) => {
-  const q = query(collection(db, "events"), where("userId", "==", userId));
+  const q = query(
+    collection(db, "events"),
+    where("userId", "==", userId),
+    orderBy("createdAt", "desc")
+  );
   const unsubscribe = onSnapshot(q, (snapshot) => {
     const events = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-    events.sort((a, b) => {
-        if (a.createdAt && b.createdAt) {
-          return b.createdAt.toMillis() - a.createdAt.toMillis();
-        }
-        return 0;
-    });
     callback(events);
+  }, (error) => {
+    console.error("Error in getEvents snapshot listener:", error);
   });
   return unsubscribe;
 };
@@ -75,19 +75,18 @@ export const deleteEvent = async (eventId: string) => {
 // Documents
 
 export const getDocuments = (eventId: string, callback: (docs: any[]) => void) => {
-  const q = query(collection(db, "events", eventId, "documents"));
+  const q = query(
+    collection(db, "events", eventId, "documents"),
+    orderBy("createdAt", "asc")
+  );
   return onSnapshot(q, (snapshot) => {
     const documents = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-    documents.sort((a, b) => {
-      if (a.createdAt && b.createdAt) {
-          return a.createdAt.toMillis() - b.createdAt.toMillis();
-      }
-      return 0;
-    });
     callback(documents);
+  }, (error) => {
+    console.error("Error in getDocuments snapshot listener:", error);
   });
 };
 
