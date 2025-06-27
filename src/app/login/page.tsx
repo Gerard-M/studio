@@ -1,23 +1,15 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { signInWithGoogle } from '@/lib/firebase/auth';
-import { FileText, AlertTriangle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FileText } from 'lucide-react';
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [origin, setOrigin] = useState('');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setOrigin(window.location.origin);
-    }
-  }, []);
 
   useEffect(() => {
     if (!loading && user) {
@@ -61,16 +53,6 @@ export default function LoginPage() {
             <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.3 64.5C308.6 102.3 282.6 92 248 92c-73.4 0-134.3 57.5-134.3 128s60.9 128 134.3 128c79.9 0 119.3-57.9 123.8-91.8H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.4z"></path></svg>
             Sign In with Google
           </Button>
-          {origin && (
-            <Alert variant="default" className="mt-4 text-left">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Configuration Help</AlertTitle>
-              <AlertDescription>
-                If you see an "unauthorized-domain" error, add this exact domain to your Firebase project's authorized domains:
-                <code className="block bg-muted text-muted-foreground p-2 rounded-md mt-2 font-mono text-sm">{origin}</code>
-              </AlertDescription>
-            </Alert>
-          )}
         </CardContent>
       </Card>
     </main>
