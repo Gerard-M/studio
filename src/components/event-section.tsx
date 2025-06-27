@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from "react";
-import { getDocuments, deleteEvent } from "@/lib/firebase/firestore";
+import { getDocuments, deleteEvent, updateEvent } from "@/lib/firebase/firestore";
 import type { Event, DocuTrackDocument } from "@/lib/types";
 import DocumentCard from "./document-card";
 import { AddDocumentDialog } from "./add-document-dialog";
@@ -12,7 +12,8 @@ import { Skeleton } from "./ui/skeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function EventSection({ event }: { event: Event }) {
   const [documents, setDocuments] = useState<DocuTrackDocument[]>([]);
@@ -28,6 +29,20 @@ export default function EventSection({ event }: { event: Event }) {
     return () => unsubscribe();
   }, [event.id]);
 
+  const completedDocuments = documents.filter(doc => doc.isCompleted).length;
+  const totalDocuments = documents.length;
+  const progress = totalDocuments > 0 ? (completedDocuments / totalDocuments) * 100 : 0;
+
+  useEffect(() => {
+    if (loading) return;
+
+    const isNowCompleted = totalDocuments > 0 && completedDocuments === totalDocuments;
+    if (isNowCompleted !== event.isCompleted) {
+      updateEvent(event.id, { isCompleted: isNowCompleted });
+    }
+  }, [completedDocuments, totalDocuments, event.id, event.isCompleted, loading]);
+
+
   const handleDeleteEvent = async () => {
     try {
       await deleteEvent(event.id);
@@ -37,16 +52,20 @@ export default function EventSection({ event }: { event: Event }) {
     }
   };
 
-  const completedDocuments = documents.filter(doc => doc.isCompleted).length;
-  const totalDocuments = documents.length;
-  const progress = totalDocuments > 0 ? (completedDocuments / totalDocuments) * 100 : 0;
+  const daysUntilDue = event.dueDate ? differenceInDays(event.dueDate.toDate(), new Date()) : 0;
+  const isUrgent = !event.isCompleted && event.dueDate && daysUntilDue <= 7;
+
 
   return (
     <Collapsible className="w-full">
-      <Card>
+       <Card className={cn(
+        "transition-all", 
+        isUrgent && 'ring-2 ring-offset-2 ring-offset-background ring-red-500/70 animate-pulse',
+        event.isCompleted && 'border-dashed'
+        )}>
         <div className="flex items-start justify-between p-6">
             <div className="flex-1 pr-4">
-                <h2 className="text-2xl font-bold font-headline">{event.title}</h2>
+                <h2 className={cn("text-2xl font-bold font-headline", event.isCompleted && "text-muted-foreground")}>{event.title}</h2>
                 {event.dueDate && (
                   <p className="flex items-center gap-1.5 pt-1 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />

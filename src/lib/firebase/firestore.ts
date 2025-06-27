@@ -14,15 +14,17 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "./config";
-import type { DocumentData, DocumentStatus, EventData } from "../types";
+import type { DocumentData, DocumentStatus, EventData, ReminderPreference } from "../types";
 
 // Events
 
-export const addEvent = (userId: string, title: string, dueDate: Date) => {
-  const eventData: Omit<EventData, "createdAt"> = {
+export const addEvent = (userId: string, title: string, dueDate: Date, reminderPreference: ReminderPreference) => {
+  const eventData: Omit<EventData, "createdAt" | "id"> = {
     title,
     userId,
     dueDate: Timestamp.fromDate(dueDate),
+    isCompleted: false,
+    reminderPreference,
   };
   return addDoc(collection(db, "events"), {
     ...eventData,
@@ -30,21 +32,27 @@ export const addEvent = (userId: string, title: string, dueDate: Date) => {
   });
 };
 
-export const getEvents = (userId: string, callback: (events: any[]) => void) => {
+export const getEvents = (userId:string, callback: (events: any[]) => void) => {
   const q = query(collection(db, "events"), where("userId", "==", userId));
-  return onSnapshot(q, (snapshot) => {
+  const unsubscribe = onSnapshot(q, (snapshot) => {
     const events = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
     events.sort((a, b) => {
-      if (a.createdAt && b.createdAt) {
-        return b.createdAt.toMillis() - a.createdAt.toMillis();
-      }
-      return 0;
+        if (a.createdAt && b.createdAt) {
+          return b.createdAt.toMillis() - a.createdAt.toMillis();
+        }
+        return 0;
     });
     callback(events);
   });
+  return unsubscribe;
+};
+
+export const updateEvent = (eventId: string, data: Partial<Omit<EventData, 'id' | 'createdAt'>>) => {
+    const eventRef = doc(db, "events", eventId);
+    return updateDoc(eventRef, data);
 };
 
 export const deleteEvent = async (eventId: string) => {

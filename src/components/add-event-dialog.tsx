@@ -30,10 +30,13 @@ import { CalendarIcon, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { addEvent } from '@/lib/firebase/firestore';
+import { ReminderPreference, reminderPreferences } from '@/lib/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 const formSchema = z.object({
   title: z.string().min(2, 'Title must be at least 2 characters.'),
   dueDate: z.date({ required_error: 'A due date is required.' }),
+  reminderPreference: z.custom<ReminderPreference>(),
 });
 
 export function AddEventDialog({ userId }: { userId: string }) {
@@ -44,12 +47,13 @@ export function AddEventDialog({ userId }: { userId: string }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
+      reminderPreference: 'none',
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await addEvent(userId, values.title, values.dueDate);
+      await addEvent(userId, values.title, values.dueDate, values.reminderPreference);
       toast({ title: 'Success', description: 'Event created successfully.' });
       form.reset();
       setOpen(false);
@@ -133,6 +137,28 @@ export function AddEventDialog({ userId }: { userId: string }) {
                       />
                     </PopoverContent>
                   </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="reminderPreference"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email Reminders</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a reminder frequency" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {reminderPreferences.map(pref => (
+                        <SelectItem key={pref.value} value={pref.value}>{pref.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
