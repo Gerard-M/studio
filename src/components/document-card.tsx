@@ -10,7 +10,6 @@ import { updateDocumentStatus, toggleDocumentCompletion, deleteDocument } from "
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
 import { Calendar, ExternalLink, MoreVertical, Trash2 } from "lucide-react";
@@ -106,18 +105,17 @@ export default function DocumentCard({ eventId, document }: { eventId: string, d
         </DropdownMenu>
 
       </CardHeader>
-      <CardContent className="flex-1 space-y-4">
+      <CardContent className="flex-1">
         <Select value={document.status} onValueChange={handleStatusChange} disabled={isUpdating}>
-          <SelectTrigger>
+          <SelectTrigger className={cn("capitalize rounded-full font-semibold", statusColors[document.status])}>
             <SelectValue placeholder="Set status" />
           </SelectTrigger>
           <SelectContent>
             {documentStatuses.map(status => (
-              <SelectItem key={status} value={status}>{status}</SelectItem>
+              <SelectItem key={status} value={status} className="capitalize">{status}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Badge variant="outline" className={cn("font-mono text-xs", statusColors[document.status])}>{document.status}</Badge>
       </CardContent>
       <CardFooter>
         <Button variant="outline" size="sm" asChild className="w-full">
