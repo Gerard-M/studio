@@ -7,6 +7,7 @@ import { Input } from "./ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { PlusCircle } from "lucide-react";
 import EventSection from "./event-section";
+import { Skeleton } from "./ui/skeleton";
 
 export default function Dashboard({ user }: { user: UserProfile }) {
   const [events, setEvents] = useState<Event[]>([]);
@@ -59,9 +60,12 @@ export default function Dashboard({ user }: { user: UserProfile }) {
       </div>
 
       {loading ? (
-        <p>Loading events...</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-40 w-full rounded-lg" />
+          <Skeleton className="h-40 w-full rounded-lg" />
+        </div>
       ) : events.length > 0 ? (
-        <div className="space-y-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {events.map((event) => (
             <EventSection key={event.id} event={event} />
           ))}
