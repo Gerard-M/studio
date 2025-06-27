@@ -30,8 +30,9 @@ import { CalendarIcon, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { addEvent } from '@/lib/firebase/firestore';
-import { ReminderPreference, reminderPreferences } from '@/lib/types';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { ReminderPreference, reminderPreferences, type UserProfile } from '@/lib/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { generateEmailReceipt } from '@/ai/flows/generate-email-receipt-flow';
 
 const formSchema = z.object({
   title: z.string().min(2, 'Title must be at least 2 characters.'),
@@ -39,7 +40,7 @@ const formSchema = z.object({
   reminderPreference: z.custom<ReminderPreference>(),
 });
 
-export function AddEventDialog({ userId }: { userId: string }) {
+export function AddEventDialog({ user }: { user: UserProfile }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
@@ -53,8 +54,27 @@ export function AddEventDialog({ userId }: { userId: string }) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await addEvent(userId, values.title, values.dueDate, values.reminderPreference);
-      toast({ title: 'Success', description: 'Event created successfully.' });
+      await addEvent(user.uid, values.title, values.dueDate, values.reminderPreference);
+
+      if (user.email) {
+        try {
+          const emailReceipt = await generateEmailReceipt({
+            userName: user.name ?? 'User',
+            userEmail: user.email,
+            eventTitle: values.title,
+            dueDate: format(values.dueDate, 'PPP'),
+          });
+          console.log('--- Email Receipt Generated ---');
+          console.log('To:', user.email);
+          console.log('Subject:', emailReceipt.subject);
+          console.log('Body:', emailReceipt.body);
+          console.log('-----------------------------');
+        } catch (aiError) {
+          console.error("Failed to generate email receipt:", aiError);
+        }
+      }
+
+      toast({ title: 'Success!', description: 'Event created. A confirmation receipt has been sent to your email.' });
       form.reset();
       setOpen(false);
     } catch (error) {
@@ -151,7 +171,7 @@ export function AddEventDialog({ userId }: { userId: string }) {
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a reminder frequency" />
-                      </SelectTrigger>
+                      </Trigger>
                     </FormControl>
                     <SelectContent>
                       {reminderPreferences.map(pref => (

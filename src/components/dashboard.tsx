@@ -44,7 +44,7 @@ export default function Dashboard({ user }: { user: UserProfile }) {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight text-foreground font-headline">Your Events</h1>
-        <AddEventDialog userId={user.uid} />
+        <AddEventDialog user={user} />
       </div>
 
       {loading ? (
