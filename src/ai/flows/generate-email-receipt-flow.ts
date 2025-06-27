@@ -10,7 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 
-export const GenerateEmailReceiptInputSchema = z.object({
+const GenerateEmailReceiptInputSchema = z.object({
   userName: z.string().describe('The name of the user to address the email to.'),
   userEmail: z.string().describe('The email address of the user.'),
   eventTitle: z.string().describe('The title of the event that was created.'),
@@ -18,7 +18,7 @@ export const GenerateEmailReceiptInputSchema = z.object({
 });
 export type GenerateEmailReceiptInput = z.infer<typeof GenerateEmailReceiptInputSchema>;
 
-export const GenerateEmailReceiptOutputSchema = z.object({
+const GenerateEmailReceiptOutputSchema = z.object({
   subject: z.string().describe('The subject line of the email.'),
   body: z.string().describe('The HTML body of the email.'),
 });

@@ -40,7 +40,8 @@ const getReminderText = (pref: ReminderPreference, dueDate: Date): string | null
       if (daysUntilDue <= 3) return `Reminders active (due ${distance})`;
       return `Reminder set for 3 days before due date`;
     case 'one_week_before':
-      if (daysUntilDue <= 7) return `Reminder set for 1 week before due date`;
+      if (daysUntilDue <= 7) return `Reminders active (due ${distance})`;
+      return `Reminder set for 1 week before due date`;
     default:
       return null;
   }
