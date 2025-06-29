@@ -1,30 +1,23 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { signInWithGoogle } from '@/lib/firebase/auth';
-import { FileText, Info } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [hostname, setHostname] = useState('');
 
   useEffect(() => {
     if (!loading && user) {
       router.push('/');
     }
   }, [user, loading, router]);
-
-  useEffect(() => {
-    // This runs only on the client, after hydration
-    setHostname(window.location.hostname);
-  }, []);
 
   if (loading || user) {
     return (
@@ -76,20 +69,6 @@ export default function LoginPage() {
           </Button>
         </CardContent>
       </Card>
-      {hostname && (
-        <Alert variant="default" className="max-w-sm text-left">
-          <Info className="h-4 w-4" />
-          <AlertTitle className="font-bold">Configuration Help</AlertTitle>
-          <AlertDescription>
-            If the login pop-up closes immediately, go to your Firebase project, navigate to
-            <b className="font-semibold text-foreground"> Authentication &gt; Settings &gt; Authorized domains</b>,
-            and add the following domain:
-            <pre className="mt-2 rounded-md bg-muted p-2 text-muted-foreground font-mono text-xs overflow-x-auto">
-              {hostname}
-            </pre>
-          </AlertDescription>
-        </Alert>
-      )}
     </main>
   );
 }
