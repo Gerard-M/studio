@@ -34,6 +34,7 @@ import { useToast } from '@/hooks/use-toast';
 import { addEvent } from '@/lib/firebase/firestore';
 import { reminderPreferences, type UserProfile } from '@/lib/types';
 import { generateEmailReceipt } from '@/ai/flows/generate-email-receipt-flow';
+import { sendEmail } from '@/lib/email';
 
 const formSchema = z.object({
   title: z.string().min(2, 'Title must be at least 2 characters.'),
@@ -56,6 +57,7 @@ export function AddEventDialog({ user }: { user: UserProfile }) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await addEvent(user.uid, values.title, values.dueDate, values.reminderPreference);
+      let emailSentMessage = 'Email sending was skipped.';
 
       if (user.email) {
         try {
@@ -65,18 +67,22 @@ export function AddEventDialog({ user }: { user: UserProfile }) {
             eventTitle: values.title,
             dueDate: format(values.dueDate, 'PPP'),
           });
-          console.log('--- SIMULATED EMAIL ---');
-          console.log('This is a simulated email. In a real application, this would be sent using an email service like SendGrid or Resend.');
-          console.log('To:', user.email);
-          console.log('Subject:', emailReceipt.subject);
-          console.log('Body:', emailReceipt.body);
-          console.log('-----------------------');
-        } catch (aiError) {
-          console.error("Failed to generate email receipt:", aiError);
+          
+          await sendEmail({
+            to: user.email,
+            subject: emailReceipt.subject,
+            html: emailReceipt.body,
+          });
+
+          emailSentMessage = 'A confirmation email has been sent.';
+
+        } catch (emailError) {
+          console.error("Failed to send confirmation email:", emailError);
+          emailSentMessage = 'Could not send confirmation email.';
         }
       }
 
-      toast({ title: 'Success!', description: 'Event created. A sample email receipt has been logged to the console.' });
+      toast({ title: 'Success!', description: `Event created. ${emailSentMessage}` });
       form.reset();
       setOpen(false);
     } catch (error) {
