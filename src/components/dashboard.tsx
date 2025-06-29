@@ -49,7 +49,7 @@ export default function Dashboard({ user }: { user: UserProfile }) {
 
       {loading ? (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Skeleton className="h-40 w-full rounded-lg" />
             <Skeleton className="h-40 w-full rounded-lg" />
           </div>
@@ -60,7 +60,7 @@ export default function Dashboard({ user }: { user: UserProfile }) {
           {/* Active Events */}
           <div className="space-y-6">
              {activeEvents.length > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {activeEvents.map((event) => (
                     <EventSection key={event.id} event={event} />
                     ))}
@@ -84,7 +84,7 @@ export default function Dashboard({ user }: { user: UserProfile }) {
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {completedEvents.map((event) => (
                     <EventSection key={event.id} event={event} />
                   ))}

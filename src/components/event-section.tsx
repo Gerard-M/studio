@@ -95,8 +95,8 @@ export default function EventSection({ event }: { event: Event }) {
         "transition-all", 
         event.isCompleted && 'border-dashed'
         )}>
-        <div className="flex items-start justify-between p-6">
-            <div className="flex-1 pr-4">
+        <div className="flex flex-col md:flex-row md:items-start justify-between p-4 md:p-6 gap-4">
+            <div className="flex-1">
                 <h2 className={cn("text-2xl font-bold font-headline", event.isCompleted && "text-muted-foreground")}>{event.title}</h2>
                 <div className="space-y-1 mt-1">
                   {event.dueDate && (
@@ -121,7 +121,7 @@ export default function EventSection({ event }: { event: Event }) {
                 </div>
                 <Progress value={loading ? 0 : Math.round(progress)} className="w-full mt-2" />
             </div>
-            <div className="flex items-center gap-2 pl-4">
+            <div className="flex items-center gap-2 w-full md:w-auto justify-end shrink-0">
                 <AddDocumentDialog eventId={event.id} />
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -157,13 +157,13 @@ export default function EventSection({ event }: { event: Event }) {
             <div className="border-t">
                 <div className="px-6 py-6">
                     {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                           <Skeleton className="h-56 w-full" />
                           <Skeleton className="h-56 w-full" />
                           <Skeleton className="h-56 w-full" />
                         </div>
                     ) : documents.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {documents.map((doc) => (
                           <DocumentCard key={doc.id} eventId={event.id} document={doc} />
                         ))}
