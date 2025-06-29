@@ -4,6 +4,7 @@ import { AuthProvider } from '@/components/providers/auth-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { CustomThemeProvider } from '@/components/providers/custom-theme-provider';
 
 export const metadata: Metadata = {
   title: 'Docutrack',
@@ -32,14 +33,16 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-          <Toaster />
+          <CustomThemeProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+            <Toaster />
+          </CustomThemeProvider>
         </ThemeProvider>
       </body>
     </html>
