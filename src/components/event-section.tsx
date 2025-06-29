@@ -51,6 +51,7 @@ const getReminderText = (pref: ReminderPreference, dueDate: Date): string | null
 export default function EventSection({ event }: { event: Event }) {
   const [documents, setDocuments] = useState<DocuTrackDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -90,12 +91,13 @@ export default function EventSection({ event }: { event: Event }) {
   };
 
   return (
-    <Collapsible className="w-full">
+    <Collapsible className="w-full" open={isOpen} onOpenChange={setIsOpen}>
         <Card className={cn(
         "transition-all", 
         event.isCompleted && 'border-dashed'
         )}>
-        <div className="flex flex-col md:flex-row md:items-start justify-between p-4 md:p-6 gap-4">
+        <CollapsibleTrigger asChild>
+          <div className="flex w-full flex-col cursor-pointer p-4 hover:bg-muted/50 md:flex-row md:items-start md:p-6 md:gap-4">
             <div className="flex-1">
                 <h2 className={cn("text-2xl font-bold font-headline", event.isCompleted && "text-muted-foreground")}>{event.title}</h2>
                 <div className="space-y-1 mt-1">
@@ -121,37 +123,37 @@ export default function EventSection({ event }: { event: Event }) {
                 </div>
                 <Progress value={loading ? 0 : Math.round(progress)} className="w-full mt-2" />
             </div>
-            <div className="flex items-center gap-2 w-full md:w-auto justify-end shrink-0">
-                <AddDocumentDialog eventId={event.id} />
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="icon">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete the event &quot;{event.title}&quot; and all its documents. This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteEvent} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-                <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                        <ChevronsUpDown className="h-4 w-4" />
-                        <span className="sr-only">Toggle Documents</span>
-                    </Button>
-                </CollapsibleTrigger>
+            <div className="flex items-center gap-2 w-full md:w-auto justify-end shrink-0 mt-4 md:mt-0">
+                <div onClick={(e) => e.stopPropagation()}>
+                  <AddDocumentDialog eventId={event.id} />
+                </div>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="icon">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete the event &quot;{event.title}&quot; and all its documents. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteEvent} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+                <ChevronsUpDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200", isOpen && "rotate-180")} />
             </div>
-        </div>
+          </div>
+        </CollapsibleTrigger>
 
         <CollapsibleContent>
             <div className="border-t">
