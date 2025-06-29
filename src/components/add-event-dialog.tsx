@@ -65,17 +65,18 @@ export function AddEventDialog({ user }: { user: UserProfile }) {
             eventTitle: values.title,
             dueDate: format(values.dueDate, 'PPP'),
           });
-          console.log('--- Email Receipt Generated ---');
+          console.log('--- SIMULATED EMAIL ---');
+          console.log('This is a simulated email. In a real application, this would be sent using an email service like SendGrid or Resend.');
           console.log('To:', user.email);
           console.log('Subject:', emailReceipt.subject);
           console.log('Body:', emailReceipt.body);
-          console.log('-----------------------------');
+          console.log('-----------------------');
         } catch (aiError) {
           console.error("Failed to generate email receipt:", aiError);
         }
       }
 
-      toast({ title: 'Success!', description: 'Event created. A confirmation receipt has been sent to your email.' });
+      toast({ title: 'Success!', description: 'Event created. A sample email receipt has been logged to the console.' });
       form.reset();
       setOpen(false);
     } catch (error) {
