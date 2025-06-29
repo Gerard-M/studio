@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { ThemeSwitcher } from '../theme-switcher';
-import { ColorPicker } from '../color-picker';
 
 export default function Header({ user }: { user: UserProfile }) {
   const router = useRouter();
@@ -28,7 +27,6 @@ export default function Header({ user }: { user: UserProfile }) {
         <span className="font-bold text-xl font-headline">Docutrack</span>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        <ColorPicker />
         <ThemeSwitcher />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
