@@ -75,8 +75,7 @@ export const deleteEvent = async (eventId: string) => {
 
 export const getDocuments = (eventId: string, callback: (docs: DocuTrackDocument[]) => void) => {
   const q = query(
-    collection(db, "events", eventId, "documents"),
-    orderBy("createdAt", "asc")
+    collection(db, "events", eventId, "documents")
   );
   return onSnapshot(q, (snapshot) => {
     const documents = snapshot.docs.map((doc) => ({

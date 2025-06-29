@@ -56,7 +56,12 @@ export default function EventSection({ event }: { event: Event }) {
   useEffect(() => {
     setLoading(true);
     const unsubscribe = getDocuments(event.id, (docs) => {
-      setDocuments(docs);
+      const sortedDocs = docs.sort((a, b) => {
+          if (!a.createdAt) return 1;
+          if (!b.createdAt) return -1;
+          return a.createdAt.toMillis() - b.createdAt.toMillis();
+      });
+      setDocuments(sortedDocs);
       setLoading(false);
     });
     return () => unsubscribe();
@@ -94,77 +99,79 @@ export default function EventSection({ event }: { event: Event }) {
       <CollapsibleTrigger asChild>
         <div
           className={cn(
-            'flex w-full cursor-pointer flex-col rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-all hover:bg-muted/50 md:flex-row md:items-start md:gap-4 md:p-6',
+            'flex w-full cursor-pointer flex-col rounded-lg border bg-card p-4 text-card-foreground shadow-sm transition-all hover:bg-muted/50 md:p-6',
             event.isCompleted && 'border-dashed',
             isOpen && 'rounded-b-none'
           )}
         >
-          <div className="flex-1">
-            <h2 className={cn("text-2xl font-bold font-headline", event.isCompleted && "text-muted-foreground")}>{event.title}</h2>
-            <div className="space-y-1 mt-1">
-              {event.dueDate && (
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  Due: {format(event.dueDate.toDate(), "MMM d, yyyy")}
-                </p>
-              )}
-              {reminderText && (
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <BellRing className="h-3 w-3" />
-                    {reminderText}
-                </p>
-              )}
-            </div>
-            <div className="text-sm text-muted-foreground mt-3">
-                {loading ? (
-                    <Skeleton className="h-4 w-48" />
-                ) : (
-                    <p>{completedDocuments} of {totalDocuments} documents completed.</p>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4 w-full">
+            <div className="flex-1">
+              <h2 className={cn("text-2xl font-bold font-headline", event.isCompleted && "text-muted-foreground")}>{event.title}</h2>
+              <div className="space-y-1 mt-1">
+                {event.dueDate && (
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    Due: {format(event.dueDate.toDate(), "MMM d, yyyy")}
+                  </p>
                 )}
+                {reminderText && (
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <BellRing className="h-3 w-3" />
+                      {reminderText}
+                  </p>
+                )}
+              </div>
+              <div className="text-sm text-muted-foreground mt-3">
+                  {loading ? (
+                      <Skeleton className="h-4 w-48" />
+                  ) : (
+                      <p>{completedDocuments} of {totalDocuments} documents completed.</p>
+                  )}
+              </div>
+              <Progress value={loading ? 0 : Math.round(progress)} className="w-full mt-2" />
             </div>
-            <Progress value={loading ? 0 : Math.round(progress)} className="w-full mt-2" />
-          </div>
-          <div className="flex items-center gap-2 w-full md:w-auto justify-end shrink-0 mt-4 md:mt-0">
-              <div onClick={(e) => e.stopPropagation()}>
-                <AddDocumentDialog eventId={event.id} />
-              </div>
-              <div onClick={(e) => e.stopPropagation()}>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="icon">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will permanently delete the event &quot;{event.title}&quot; and all its documents. This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteEvent} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-              <ChevronsUpDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200", isOpen && "rotate-180")} />
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0 mt-4 sm:mt-0">
+                <div onClick={(e) => e.stopPropagation()}>
+                  <AddDocumentDialog eventId={event.id} />
+                </div>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="icon">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete the event &quot;{event.title}&quot; and all its documents. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteEvent} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+                <ChevronsUpDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200", isOpen && "rotate-180")} />
+            </div>
           </div>
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="rounded-b-lg border border-t-0 bg-card px-6 py-6">
+        <div className="rounded-b-lg border border-t-0 bg-card px-4 py-6 md:px-6">
             {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   <Skeleton className="h-56 w-full" />
                   <Skeleton className="h-56 w-full" />
                   <Skeleton className="h-56 w-full" />
                 </div>
             ) : documents.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {documents.map((doc) => (
                   <DocumentCard key={doc.id} eventId={event.id} document={doc} />
                 ))}
