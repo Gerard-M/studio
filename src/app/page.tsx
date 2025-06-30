@@ -19,7 +19,7 @@ export default function Home() {
 
   if (loading || !user) {
     return (
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-svh">
         <header className="flex items-center justify-between p-4 border-b shrink-0">
           <div className="flex items-center gap-2">
             <Skeleton className="h-8 w-8" />
@@ -42,7 +42,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-svh w-full flex-col">
       <Header user={user} />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <Dashboard user={user} />
